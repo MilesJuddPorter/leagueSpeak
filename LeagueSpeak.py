@@ -1,51 +1,58 @@
-import speech_recognition as sr
-import numpy as np
-import sounddevice as sd
-import wave
-
+import speech_recognition
+import sounddevice
 import keyboard
-import pyautogui as pag
-
+import wave
+import numpy
 from time import sleep
+import googletrans
 
+FILE_NAME = "recording.wav"
+WAVE_LENGTH = 4  # Length of the Audio File
+SAMPLE_RATE = 44100
+TRANSLATION_LANGUAGE = 'EN'  # Default = EN
 
-FILE_NAME = './test.wav'  #File name to save
-wave_length = 4  #Recording length (seconds)
-sample_rate = 16_000  #Sampling frequency
+translate = False  # When True the Program translates into the set Destination
+
+if translate:
+    translator = googletrans.Translator()
+
+recognizer = speech_recognition.Recognizer()
+
 while True:
-    keyboard.wait('g')
-    print("RECORDING ***")
-    #Start recording (wave_length Record for seconds. Wait until the recording is finished with wait)
-    data = sd.rec(int(wave_length * sample_rate), sample_rate, channels=1)
-    sd.wait()
-   
-    #Normalize. Since it is recorded with 16 bits of quantization bit, it is maximized in the range of int16.
-    data = data / data.max() * np.iinfo(np.int16).max
-   
-    # float -> int
-    data = data.astype(np.int16)
-   
-    #Save file
-    with wave.open(FILE_NAME, mode='wb') as wb:
-        wb.setnchannels(1)  #monaural
-        wb.setsampwidth(2)  # 16bit=2byte
-        wb.setframerate(sample_rate)
-        wb.writeframes(data.tobytes())  #Convert to byte string
-       
-       
-   
-   
-    filename = "test.wav"
-    r = sr.Recognizer()
-   
-    with sr.AudioFile(filename) as source:
-        # listen for the data (load audio to memory)
-        audio_data = r.record(source)
-        # recognize (convert from speech to text)
-        text = r.recognize_google(audio_data)
-        print(text)
+    keyboard.wait('g')  # Waits for the key G to be pressed
+    print('RECORDING')  # Prints 'RECORDING' in the Console
+    data = sounddevice.rec(int(WAVE_LENGTH * SAMPLE_RATE), SAMPLE_RATE, 1)
+    sounddevice.wait()
+    print('DONE RECORDING')
 
+    # Normalizes, because it is recorded with 16 bits of quantization bit, it is maximized in the range of int16
+    data = data / data.max() * numpy.iinfo(numpy.int16).max
+    # Convert float -> int
+    data = data.astype(numpy.int16)
+
+    # Saves the file
+    with wave.Wave_write(FILE_NAME) as file:
+        file.setnchannels(1)
+        file.setsampwidth(2)
+        file.setframerate(SAMPLE_RATE)
+        file.writeframes(data.tobytes())
+
+    # Loads the file
+    with speech_recognition.AudioFile(FILE_NAME) as source:
+        # Records the Audio File
+        audioData = recognizer.record(source)
+        # Recognizes the words with google
+        text = recognizer.recognize_google(audioData, language="de-DE")
+
+    # Can translate the spoken message with google into the set destination
+    # (Maybe user deepl?)
+    if translate:
+        message = translator.translate(text, dest=TRANSLATION_LANGUAGE).text
+    else:
+        message = text
+
+    # Writes message in League of Legends Chat
     keyboard.press_and_release('enter')
-    sleep(0.01)
-    pag.write(text)
+    sleep(0.1)
+    keyboard.write(message)
     keyboard.press_and_release('enter')
