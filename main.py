@@ -24,9 +24,10 @@ def Run():
     ui.spBoxSeconds.setEnabled(False)
     ui.keySequenceRecord.setEnabled(False)
     ui.keySequenceOpenChat.setEnabled(False)
-    STT.Setup(ui.spBoxSeconds.property("value"), ui.keySequenceRecord.keySequence().toString(),
-              ui.comBoxLanguage.currentText(), ui.lwDisplay, ui.comBoxTranslation.currentText(),
-              ui.keySequenceOpenChat.keySequence().toString())
+    ui.keySqeuenceCloseChat.setEnabled(False)
+    STT.Setup(ui.spBoxSeconds.property("value"), ui.comBoxLanguage.currentText(), ui.comBoxTranslation.currentText(),
+              ui.lwDisplay, ui.keySequenceRecord.keySequence().toString(),
+              ui.keySequenceOpenChat.keySequence().toString(), ui.keySqeuenceCloseChat.keySequence().toString())
 
 
 # Sets all ui Element states and starts Stop in STT
@@ -38,6 +39,7 @@ def Stop():
     ui.chBoxTranslation.setEnabled(True)
     ui.comBoxTranslation.setEnabled(ui.chBoxTranslation.isChecked())
     ui.spBoxSeconds.setEnabled(True)
+    ui.keySqeuenceCloseChat.setEnabled(True)
     ui.keySequenceRecord.setEnabled(True)
     ui.keySequenceOpenChat.setEnabled(True)
     STT.Stop()

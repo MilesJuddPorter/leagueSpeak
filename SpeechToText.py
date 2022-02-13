@@ -16,7 +16,10 @@ recognizer = speech_recognition.Recognizer()
 translator = googletrans.Translator()
 
 
-def Setup(fileLength, recordKey, recognitionLanguage, display, translationLanguage, openChatKey):
+# fileLength, recognitionLanguage, translationLanguage, display, recordKey, openChatKey, closeChatKey
+
+
+def Setup(fileLength, recognitionLanguage, translationLanguage, display, recordKey, openChatKey, closeChatKey):
     # Tries to get the Language code with the set Languages
     try:
         recognitionLanguage = googletrans.LANGCODES[recognitionLanguage]
@@ -31,7 +34,7 @@ def Setup(fileLength, recordKey, recognitionLanguage, display, translationLangua
 
     # Creates a Thread for the Voice Recognition
     stt = kthread.KThread(
-        target=lambda: Run(fileLength, recordKey, recognitionLanguage, display, translationLanguage, openChatKey))
+        target=lambda: Run(fileLength, recognitionLanguage, translationLanguage, display, recordKey, openChatKey, closeChatKey))
     stt.setDaemon(True)
     stt.start()
 
@@ -42,12 +45,12 @@ def Stop():
     stt.kill()
 
 
-def Run(fileLength, key, recognitionLanguage, display, translationLanguage, openChatKey):
+def Run(fileLength, recognitionLanguage, translationLanguage, display, recordKey, openChatKey, closeChatKey):
     display.addItem(f"Started: \nLanguage ={recognitionLanguage}\nTranslation = {translationLanguage}\n"
                     f"File Length = {fileLength} sec")
     while True:
-        display.addItem(f"Waiting for Key Input {key}")
-        keyboard.wait(key)  # Waits for the set Key to be pressed
+        display.addItem(f"Waiting for Key Input {recordKey}")
+        keyboard.wait(recordKey)  # Waits for the set Key to be pressed
 
         display.addItem("Recording")
         # Starts recording. fileLength = Recording Length
@@ -92,4 +95,4 @@ def Run(fileLength, key, recognitionLanguage, display, translationLanguage, open
         sleep(0.1)
         keyboard.write(message)
         sleep(0.1)
-        keyboard.press_and_release(openChatKey)
+        keyboard.press_and_release(closeChatKey)
